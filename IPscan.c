@@ -44,7 +44,7 @@ DWORD WINAPI broadcast(void *arg) {
 			bro_data += sizeof(*eh) + sizeof(*ah) - 1;
 		}
 		bro_data -= sizeof(*eh) + sizeof(*ah) - 1;
-		Sleep(10000);
+		Sleep(6000);
 	}
 	setTargetList(target);
 	free(bro_data);

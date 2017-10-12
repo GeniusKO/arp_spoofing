@@ -87,7 +87,7 @@ int main() {
 			exit(1);
 		}
 
-		if (count_time() > 30) {
+		if (count_time() > 20) {
 			setBroadcastFlag(TRUE, 0);
 			break;
 		}
@@ -120,8 +120,8 @@ int main() {
 	
 	WaitForSingleObject(scan, INFINITE);
 	CloseHandle(scan);
-	system("REG ADD HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters /t REG_DWORD /v IPEnableRouter /d 1 /f");
-	system("REG ADD HKLM\\SYSTEM\\CurrentControlSet\\Services\\RemoteAccess /t REG_DWORD /v Start /d 2 /f");
+	system("REG ADD HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters /t REG_DWORD /v IPEnableRouter /d 1 /f > NUL");
+	system("REG ADD HKLM\\SYSTEM\\CurrentControlSet\\Services\\RemoteAccess /t REG_DWORD /v Start /d 2 /f > NUL");
 	if (cnt == 0) printf("Not Found Target\n");
 	else {
 		setpcapData_relay(fp, *info);
@@ -160,7 +160,7 @@ int main() {
 	pcap_freealldevs(alldevs);
 
 	DeleteCriticalSection(&crt);
-	system("REG ADD HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters /t REG_DWORD /v IPEnableRouter /d 0 /f");
-	system("REG ADD HKLM\\SYSTEM\\CurrentControlSet\\Services\\RemoteAccess /t REG_DWORD /v Start /d 4 /f");
+	system("REG ADD HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters /t REG_DWORD /v IPEnableRouter /d 0 /f > NUL");
+	system("REG ADD HKLM\\SYSTEM\\CurrentControlSet\\Services\\RemoteAccess /t REG_DWORD /v Start /d 4 /f > NUL");
 	return 0;
 }
