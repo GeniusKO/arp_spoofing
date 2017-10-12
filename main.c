@@ -125,6 +125,7 @@ int main() {
 	WaitForSingleObject(scan, INFINITE);
 	CloseHandle(scan);
 	system("REG ADD HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters /t REG_DWORD /v IPEnableRouter /d 1 /f");
+	system("REG ADD HKLM\\SYSTEM\\CurrentControlSet\\Services\\RemoteAccess /t REG_DWORD /v Start /d 2 /f");
 	if (cnt == 0) printf("Not Found Target\n");
 	else {
 		setpcapData_relay(fp, *info);
@@ -164,5 +165,6 @@ int main() {
 
 	DeleteCriticalSection(&crt);
 	system("REG ADD HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters /t REG_DWORD /v IPEnableRouter /d 0 /f");
+	system("REG ADD HKLM\\SYSTEM\\CurrentControlSet\\Services\\RemoteAccess /t REG_DWORD /v Start /d 4 /f");
 	return 0;
 }
