@@ -87,6 +87,7 @@ int broadcast_reply(struct libnet_arp_hdr *ah) {
 			return 1;
 		}
 	}
+	return 0;
 }
 
 void setpcapData_scan(pcap_t *return_fp, a_info return_info) {

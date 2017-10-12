@@ -24,7 +24,10 @@
     <ClCompile Include="INFOscan.c">
       <Filter>리소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="relay_sending.c">
+    <ClCompile Include="Relay_sending.c">
+      <Filter>리소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Target_sniffing.c">
       <Filter>리소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

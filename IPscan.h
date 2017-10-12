@@ -16,6 +16,8 @@
 #define TRUE 1
 #define FALSE 0
 
+CRITICAL_SECTION crt;
+
 #pragma pack(push,1)
 typedef struct Adapter_Info {
 	u_char Host_Mac[ETHER_ADDR_LEN];
@@ -30,21 +32,23 @@ typedef struct Target {
 }t_info;
 #pragma pack(pop)
 
-CRITICAL_SECTION crt;
-
 int search_Info(u_char *name);
 void change(char *ip_addr, int mode);
 int broadcast_reply(struct libnet_arp_hdr *ah);
 int target_search(struct libnet_arp_hdr *ah);
 a_info *getAdapterInfo();
+
 void setTargetList(t_info return_target);
 void setpcapData_scan(pcap_t *return_fp, a_info return_info);
 void setpcapData_relay(pcap_t *return_fp, a_info return_info);
 void setBroadcastFlag(BOOL flag, u_char *pkt);
 void setSendingFlag(BOOL flag, u_char *pkt, int num);
+void setSniffingData(BOOL flag, a_info return_info, t_info return_target, int number);
+
 DWORD WINAPI broadcast(void *arg);
 DWORD WINAPI sending_vic_reply(void *arg);
-DWORD WINAPI sending_vic_request(void *arg);
-DWORD WINAPI sending_rou(void *arg);
+DWORD WINAPI sending_rou_request(void *arg);
+DWORD WINAPI sending_rou_reply(void *arg);
+DWORD WINAPI target_paket_capture(u_char *name);
 
 #endif // !__IPSCAN_H__

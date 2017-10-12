@@ -156,7 +156,8 @@
     <ClCompile Include="INFOscan.c" />
     <ClCompile Include="IPscan.c" />
     <ClCompile Include="main.c" />
-    <ClCompile Include="relay_sending.c" />
+    <ClCompile Include="Relay_sending.c" />
+    <ClCompile Include="Target_sniffing.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IPscan.h" />

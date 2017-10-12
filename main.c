@@ -21,8 +21,8 @@ int main() {
 	u_char data[ARP_HEADER_LEN] = { 0, };
 	int res, i, j = 0, number = 0, cnt = 0;
 	char buf[32] = { 0, }, buf2[32] = { 0, }, errbuf[PCAP_ERRBUF_SIZE];
-	u_int threadID[3];
-	HANDLE scan, relay_vic_reply, relay_vic_request, relay_rou;
+	u_int threadID[4];
+	HANDLE scan, relay_vic_reply, relay_rou_request, relay_rou_reply, tar_sniffing;
 	a_info *info;
 
 	if (!InitializeCriticalSectionAndSpinCount(&crt, 0x00000400)) return 0;
@@ -71,11 +71,11 @@ int main() {
 
 	scan = (HANDLE)_beginthreadex(NULL, 0, broadcast, 0, 0, &threadID[0]);
 	relay_vic_reply = (HANDLE)_beginthreadex(NULL, 0, sending_vic_reply, 0, 0, &threadID[1]);
-	relay_vic_request = (HANDLE)_beginthreadex(NULL, 0, sending_vic_request, 0, 0, &threadID[1]);
-	relay_rou = (HANDLE)_beginthreadex(NULL, 0, sending_rou, 0, 0, &threadID[1]);
+	relay_rou_request = (HANDLE)_beginthreadex(NULL, 0, sending_rou_request, 0, 0, &threadID[2]);
+	relay_rou_reply = (HANDLE)_beginthreadex(NULL, 0, sending_rou_reply, 0, 0, &threadID[3]);
 
-	if (scan == 0 || relay_vic_reply == 0 ||relay_vic_request == 0 || relay_rou == 0) {
-		puts("_beginthreadex() error");
+	if (scan == 0 || relay_vic_reply == 0 ||relay_rou_request == 0 || relay_rou_reply == 0) {
+		printf("_beginthreadex() error");
 		return -1;
 	}
 
@@ -142,12 +142,20 @@ int main() {
 		setSendingFlag(FALSE, data, number - 1);
 	}
 
+	tar_sniffing = (HANDLE)_beginthreadex(NULL, 0, target_paket_capture, d->name, 0, &threadID[4]);
+	if (tar_sniffing == 0) {
+		printf("_beginthreadex() error");
+		return -1;
+	}
+
 	WaitForSingleObject(relay_vic_reply, INFINITE);
-	WaitForSingleObject(relay_vic_request, INFINITE);
-	WaitForSingleObject(relay_rou, INFINITE);
+	WaitForSingleObject(relay_rou_request, INFINITE);
+	WaitForSingleObject(relay_rou_reply, INFINITE);
+	WaitForSingleObject(tar_sniffing, INFINITE);
 	CloseHandle(relay_vic_reply);
-	CloseHandle(relay_vic_request);
-	CloseHandle(relay_rou);
+	CloseHandle(relay_rou_request);
+	CloseHandle(relay_rou_reply);
+	CloseHandle(tar_sniffing);
 
 	pcap_freealldevs(alldevs);
 
