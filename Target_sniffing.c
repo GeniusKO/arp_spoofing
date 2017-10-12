@@ -52,7 +52,6 @@ DWORD WINAPI target_paket_capture(u_char *name) {
 		if (!strncmp(v_info.Host_Mac, eh->ether_dhost, 6) && !strncmp(inet_ntop(AF_INET, &v_target.target_ip[s_target], buf, sizeof(buf)), inet_ntop(AF_INET, &ah->ar_tpa, buf2, sizeof(buf2)), 4)) {
 			if (!strncmp(v_info.Router_Mac, eh->ether_shost, 6) && !strncmp(inet_ntop(AF_INET, &v_info.Router_Ip, buf, sizeof(buf)), inet_ntop(AF_INET, &ah->ar_spa, buf2, sizeof(buf2)), 4)) {
 				if (ntohs(eh->ether_type) == ETHERTYPE_ARP) {
-					printf("%s\n", inet_ntop(AF_INET, &v_target.target_ip[s_target], buf, sizeof(buf)));
 					printf("2. Dst MAC: ");
 					for (int i = 0; i < 6; i++) { // Destination mac address 6byte
 						if (i == 5) printf("%02x | ", eh->ether_dhost[i]);

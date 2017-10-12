@@ -46,6 +46,7 @@ void setSendingFlag(BOOL flag, u_char *pkt, int num);
 void setSniffingData(BOOL flag, a_info return_info, t_info return_target, int number);
 
 DWORD WINAPI broadcast(void *arg);
+DWORD WINAPI sending_vic_request(void *arg);
 DWORD WINAPI sending_vic_reply(void *arg);
 DWORD WINAPI sending_rou_request(void *arg);
 DWORD WINAPI sending_rou_reply(void *arg);
