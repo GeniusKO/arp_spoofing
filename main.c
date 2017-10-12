@@ -92,16 +92,12 @@ int main() {
 			break;
 		}
 		eh = (struct libnet_ethernet_hdr *)pkt_data;
-
+		ah = (struct libnet_arp_hdr *)(pkt_data + sizeof(*eh));
 		if (ETHERTYPE_ARP == ntohs(eh->ether_type)) {
 			if (!strncmp(data, "", ARP_HEADER_LEN)) {
 				for (i = 0; i < ARP_HEADER_LEN; i++) *(data + i) = *(pkt_data + i);
 				setBroadcastFlag(FALSE, data);
 			}
-
-			pkt_data = pkt_data + sizeof(*eh);
-
-			ah = (struct libnet_arp_hdr *)pkt_data;
 
 			if (!strcmp(inet_ntop(AF_INET, &info->Router_Ip, buf, sizeof(buf)), inet_ntop(AF_INET, &ah->ar_spa, buf2, sizeof(buf2)))) {
 				if (!strncmp(info->Router_Mac, "", ETHER_ADDR_LEN)) {
