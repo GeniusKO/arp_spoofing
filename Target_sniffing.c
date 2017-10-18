@@ -32,10 +32,9 @@ DWORD WINAPI target_paket_capture(u_char *name) {
 			exit(1);
 		}
 		eh = (struct libnet_ethernet_hdr *)pkt_data;
-		//ah = (struct libnet_arp_hdr *)(pkt_data + sizeof(*eh));
 		ih = (struct libnet_ipv4_hdr *)(pkt_data + sizeof(*eh));
 		th = (struct libnet_tcp_hdr *)(pkt_data + sizeof(*eh) + sizeof(*ih));
-		if (!strncmp(v_info.Host_Mac, eh->ether_dhost, 6) && !strncmp(v_target.target_mac, eh->ether_shost, 6) && ntohs(eh->ether_type) == ETHERTYPE_IP && ih->ip_p == IPPROTO_TCP && th->th_dport == HTTP_PORT) {
+		if (!strncmp(v_info.Host_Mac, eh->ether_dhost, 6) && (!strncmp(inet_ntop(AF_INET, &v_target.target_ip, buf, sizeof(buf)), inet_ntop(AF_INET, &ih->ip_src, buf2, sizeof(buf2)), 4) || !strncmp(inet_ntop(AF_INET, &v_target.target_ip, buf, sizeof(buf)), inet_ntop(AF_INET, &ih->ip_dst, buf2, sizeof(buf2)), 4)) && ntohs(eh->ether_type) == ETHERTYPE_IP && ih->ip_p == IPPROTO_TCP && (ntohs(th->th_dport) == HTTP_PORT || ntohs(th->th_sport) == HTTP_PORT)) {
 			th_off = th->th_off * 4;
 			if (th_off > LIBNET_TCP_H) {
 				printf("1. Dst MAC: ");
@@ -54,7 +53,7 @@ DWORD WINAPI target_paket_capture(u_char *name) {
 				printf("%s\n", pkt_data);
 			}
 			else {
-				printf("1. Dst MAC: ");
+				printf("2. Dst MAC: ");
 				for (int i = 0; i < 6; i++) { // Destination mac address 6byte
 					if (i == 5) printf("%02x | ", eh->ether_dhost[i]);
 					else printf("%02x:", eh->ether_dhost[i]);
@@ -71,6 +70,7 @@ DWORD WINAPI target_paket_capture(u_char *name) {
 			}
 		}
 	}
+	return 0;
 }
 
 void setSniffingData(BOOL flag, a_info return_info, t_info return_target, int number) {

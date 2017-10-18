@@ -14,7 +14,7 @@ DWORD WINAPI sending_vic_request(void *arg) {
 	u_char *vic_data_request = (u_char*)malloc(sizeof(u_char) * ARP_HEADER_LEN);
 	struct libnet_ethernet_hdr *eh;
 	struct libnet_arp_hdr *ah;
-	while (rel_flag);
+	while (rel_flag) Sleep(1000);
 	for (i = 0; i < ARP_HEADER_LEN; i++) *(vic_data_request + i) = *(data + i);
 	while (1) {
 		if (rel_flag) break;
@@ -51,7 +51,7 @@ DWORD WINAPI sending_vic_reply(void *arg) {
 	u_char *vic_data_reply = (u_char*)malloc(sizeof(u_char) * ARP_HEADER_LEN);
 	struct libnet_ethernet_hdr *eh;
 	struct libnet_arp_hdr *ah;
-	while (rel_flag);
+	while (rel_flag) Sleep(1000);
 	setSniffingData(FALSE, info, target, n_target);
 	for (i = 0; i < ARP_HEADER_LEN; i++) *(vic_data_reply + i) = *(data + i);
 	while (1) {
@@ -76,7 +76,7 @@ DWORD WINAPI sending_vic_reply(void *arg) {
 			return -1;
 		}
 		LeaveCriticalSection(&crt);
-		Sleep(5000);
+		Sleep(3000);
 	}
 	free(vic_data_reply);
 	return 0;
@@ -89,7 +89,7 @@ DWORD WINAPI sending_rou_request(void *arg) {
 	u_char *rou_data_request = (u_char*)malloc(sizeof(u_char) * ARP_HEADER_LEN);
 	struct libnet_ethernet_hdr *eh;
 	struct libnet_arp_hdr *ah;
-	while (rel_flag);
+	while (rel_flag) Sleep(1000);
 	for (i = 0; i < ARP_HEADER_LEN; i++) *(rou_data_request + i) = *(data + i);
 	while (1) {
 		if (rel_flag) break;
@@ -126,7 +126,7 @@ DWORD WINAPI sending_rou_reply(void *arg) {
 	u_char *rou_data = (u_char *)malloc(sizeof(u_char) * ARP_HEADER_LEN);
 	struct libnet_ethernet_hdr *eh;
 	struct libnet_arp_hdr *ah;
-	while (rel_flag);
+	while (rel_flag) Sleep(1000);
 	for (i = 0; i < ARP_HEADER_LEN; i++) *(rou_data + i) = *(data + i);
 	while (1) {
 		if (rel_flag) break;

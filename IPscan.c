@@ -73,6 +73,10 @@ int target_search(struct libnet_arp_hdr *ah) {
 
 int broadcast_reply(struct libnet_arp_hdr *ah) {
 	int i;
+	char host[1024];
+	char service[20];
+	struct sockaddr_in sa;
+	DWORD dwRetval;
 
 	if (!strncmp(inet_ntop(AF_INET, &info.Host_Ip, buf2, sizeof(buf2)), inet_ntop(AF_INET, &ah->ar_tpa, buf, sizeof(buf)), 4)) {
 		if (target_search(ah) == 0) {
@@ -80,9 +84,21 @@ int broadcast_reply(struct libnet_arp_hdr *ah) {
 			printf("\t%d.\tTarget IP : %s\t Target MAC : ", target_count + 1, inet_ntop(AF_INET, &target.target_ip[target_count], buf, sizeof(buf)));
 			for (i = 0; i < ETHER_ADDR_LEN; i++) {
 				target.target_mac[target_count][i] = ah->ar_sha[i];
-				if (i == 5) printf("%02X\n", target.target_mac[target_count][i]);
+				if (i == 5) printf("%02X | ", target.target_mac[target_count][i]);
 				else printf("%02X-", target.target_mac[target_count][i]);
 			}
+			sa.sin_family = AF_INET;
+			sa.sin_addr.s_addr = inet_addr(inet_ntop(AF_INET, &target.target_ip[target_count], buf, sizeof(buf)));
+			dwRetval = getnameinfo(&sa, sizeof sa, host, NI_MAXHOST, service, NI_MAXSERV, NI_NUMERICSERV);
+			if (dwRetval != 0) {
+				printf("getnameinfo failed with error # %ld\n", WSAGetLastError());
+				return -1;
+			}
+			else {
+				if (!strncmp(inet_ntop(AF_INET, &target.target_ip[target_count], buf, sizeof(buf)), host, 4)) printf("Not Found!\n");
+				else printf("%s\n", host);
+			}
+
 			target_count++;
 			return 1;
 		}

