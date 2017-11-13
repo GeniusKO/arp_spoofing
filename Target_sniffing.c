@@ -13,7 +13,6 @@ DWORD WINAPI target_paket_capture(u_char *name) {
 	struct pcap_pkthdr *header;
 	const u_char *pkt_data;
 	struct libnet_ethernet_hdr *eh;
-	//struct libnet_arp_hdr *ah;
 	struct libnet_ipv4_hdr *ih;
 	struct libnet_tcp_hdr *th;
 	char buf[32] = { 0, }, buf2[32] = { 0, }, errbuf[PCAP_ERRBUF_SIZE];
@@ -34,42 +33,44 @@ DWORD WINAPI target_paket_capture(u_char *name) {
 		eh = (struct libnet_ethernet_hdr *)pkt_data;
 		ih = (struct libnet_ipv4_hdr *)(pkt_data + sizeof(*eh));
 		th = (struct libnet_tcp_hdr *)(pkt_data + sizeof(*eh) + sizeof(*ih));
-		if (!strncmp(v_info.Host_Mac, eh->ether_dhost, 6) && (!strncmp(inet_ntop(AF_INET, &v_target.target_ip, buf, sizeof(buf)), inet_ntop(AF_INET, &ih->ip_src, buf2, sizeof(buf2)), 4) || !strncmp(inet_ntop(AF_INET, &v_target.target_ip, buf, sizeof(buf)), inet_ntop(AF_INET, &ih->ip_dst, buf2, sizeof(buf2)), 4)) && ntohs(eh->ether_type) == ETHERTYPE_IP && ih->ip_p == IPPROTO_TCP && (ntohs(th->th_dport) == HTTP_PORT || ntohs(th->th_sport) == HTTP_PORT)) {
-			th_off = th->th_off * 4;
-			if (th_off > LIBNET_TCP_H) {
-				printf("1. Dst MAC: ");
-				for (int i = 0; i < 6; i++) { // Destination mac address 6byte
-					if (i == 5) printf("%02x | ", eh->ether_dhost[i]);
-					else printf("%02x:", eh->ether_dhost[i]);
-				}
-				printf("Src MAC: ");
-				for (int i = 0; i < 6; i++) { // source mac address 6byte
-					if (i == 5) printf("%02x | ", eh->ether_shost[i]);
-					else printf("%02x:", eh->ether_shost[i]);
-				}
-				printf("\tDst IP Addr : %s | ", inet_ntop(AF_INET, &ih->ip_dst, buf, sizeof(buf)));
-				printf("Src IP Addr : %s\n", inet_ntop(AF_INET, &ih->ip_src, buf, sizeof(buf)));
-				pkt_data += sizeof(*eh) + sizeof(*ih) + th_off;
-				printf("%s\n", pkt_data);
+		th_off = th->th_off * 4;
+		if (!strncmp(eh->ether_dhost, v_info.Host_Mac, 6) && !strncmp(eh->ether_shost, v_info.Router_Mac, 6) && !strncmp(inet_ntop(AF_INET, &ih->ip_dst, buf, sizeof(buf)), inet_ntop(AF_INET, &v_target.target_ip[s_target], buf2, sizeof(buf2)), 4)) {
+			
+			printf("1. Dst MAC: ");
+			for (int i = 0; i < 6; i++) { // Destination mac address 6byte
+				if (i == 5) printf("%02x | ", eh->ether_dhost[i]);
+				else printf("%02x:", eh->ether_dhost[i]);
 			}
-			else {
-				printf("2. Dst MAC: ");
-				for (int i = 0; i < 6; i++) { // Destination mac address 6byte
-					if (i == 5) printf("%02x | ", eh->ether_dhost[i]);
-					else printf("%02x:", eh->ether_dhost[i]);
-				}
-				printf("Src MAC: ");
-				for (int i = 0; i < 6; i++) { // source mac address 6byte
-					if (i == 5) printf("%02x | ", eh->ether_shost[i]);
-					else printf("%02x:", eh->ether_shost[i]);
-				}
-				printf("\tDst IP Addr : %s | ", inet_ntop(AF_INET, &ih->ip_dst, buf, sizeof(buf)));
-				printf("Src IP Addr : %s\n", inet_ntop(AF_INET, &ih->ip_src, buf, sizeof(buf)));
-				pkt_data += sizeof(*eh) + sizeof(*ih) + sizeof(*th);
-				printf("%s\n", pkt_data);
+			printf("Src MAC: ");
+			for (int i = 0; i < 6; i++) { // source mac address 6byte
+				if (i == 5) printf("%02x | ", eh->ether_shost[i]);
+				else printf("%02x:", eh->ether_shost[i]);
 			}
+			printf("\tDst IP Addr : %s | ", inet_ntop(AF_INET, &ih->ip_dst, buf, sizeof(buf)));
+			printf("Src IP Addr : %s\n", inet_ntop(AF_INET, &ih->ip_src, buf2, sizeof(buf2)));
+			pkt_data += sizeof(*eh) + sizeof(*ih) + th_off;
+			printf("%s\n", pkt_data);
+		}
+		if (!strncmp(eh->ether_dhost, v_info.Host_Mac, 6) && !strncmp(eh->ether_shost, v_target.target_mac[s_target], 6) && !strncmp(inet_ntop(AF_INET, &ih->ip_src, buf, sizeof(buf)), inet_ntop(AF_INET, &v_target.target_ip[s_target], buf2, sizeof(buf2)), 4)) {
+			
+			printf("2. Dst MAC: ");
+			for (int i = 0; i < 6; i++) { // Destination mac address 6byte
+				if (i == 5) printf("%02x | ", eh->ether_dhost[i]);
+				else printf("%02x:", eh->ether_dhost[i]);
+			}
+			printf("Src MAC: ");
+			for (int i = 0; i < 6; i++) { // source mac address 6byte
+				if (i == 5) printf("%02x | ", eh->ether_shost[i]);
+				else printf("%02x:", eh->ether_shost[i]);
+			}
+			printf("\tDst IP Addr : %s | ", inet_ntop(AF_INET, &ih->ip_dst, buf, sizeof(buf)));
+			printf("Src IP Addr : %s\n", inet_ntop(AF_INET, &ih->ip_src, buf2, sizeof(buf2)));
+			pkt_data += sizeof(*eh) + sizeof(*ih) + th_off;
+			printf("%s\n", pkt_data);
 		}
 	}
+
+	pcap_freealldevs(alldevs);
 	return 0;
 }
 
