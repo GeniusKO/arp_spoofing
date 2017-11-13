@@ -11,7 +11,7 @@
 #define IP_ADDR_LEN 4
 #define BROADCAST 255
 #define ARP_HEADER_LEN 42
-#define HTTP_PORT 0x0050
+#define HTTP_PORT 0x5000
 
 #define BOOL unsigned char
 #define TRUE 1

@@ -34,39 +34,12 @@ DWORD WINAPI target_paket_capture(u_char *name) {
 		ih = (struct libnet_ipv4_hdr *)(pkt_data + sizeof(*eh));
 		th = (struct libnet_tcp_hdr *)(pkt_data + sizeof(*eh) + sizeof(*ih));
 		th_off = th->th_off * 4;
-		if (!strncmp(eh->ether_dhost, v_info.Host_Mac, 6) && !strncmp(eh->ether_shost, v_info.Router_Mac, 6) && !strncmp(inet_ntop(AF_INET, &ih->ip_dst, buf, sizeof(buf)), inet_ntop(AF_INET, &v_target.target_ip[s_target], buf2, sizeof(buf2)), 4)) {
-			
-			printf("1. Dst MAC: ");
-			for (int i = 0; i < 6; i++) { // Destination mac address 6byte
-				if (i == 5) printf("%02x | ", eh->ether_dhost[i]);
-				else printf("%02x:", eh->ether_dhost[i]);
+		
+		if (!strcmp(inet_ntop(AF_INET, &ih->ip_dst, buf, sizeof(buf)), inet_ntop(AF_INET, &v_target.target_ip[s_target], buf2, sizeof(buf2))) || !strcmp(inet_ntop(AF_INET, &ih->ip_src, buf, sizeof(buf)), inet_ntop(AF_INET, &v_target.target_ip[s_target], buf2, sizeof(buf2)))) {
+			if (th ->th_dport == HTTP_PORT || th->th_sport == HTTP_PORT) {
+				pkt_data += sizeof(*eh) + sizeof(*ih) + th_off;
+				printf("%s\n", pkt_data);
 			}
-			printf("Src MAC: ");
-			for (int i = 0; i < 6; i++) { // source mac address 6byte
-				if (i == 5) printf("%02x | ", eh->ether_shost[i]);
-				else printf("%02x:", eh->ether_shost[i]);
-			}
-			printf("\tDst IP Addr : %s | ", inet_ntop(AF_INET, &ih->ip_dst, buf, sizeof(buf)));
-			printf("Src IP Addr : %s\n", inet_ntop(AF_INET, &ih->ip_src, buf2, sizeof(buf2)));
-			pkt_data += sizeof(*eh) + sizeof(*ih) + th_off;
-			printf("%s\n", pkt_data);
-		}
-		if (!strncmp(eh->ether_dhost, v_info.Host_Mac, 6) && !strncmp(eh->ether_shost, v_target.target_mac[s_target], 6) && !strncmp(inet_ntop(AF_INET, &ih->ip_src, buf, sizeof(buf)), inet_ntop(AF_INET, &v_target.target_ip[s_target], buf2, sizeof(buf2)), 4)) {
-			
-			printf("2. Dst MAC: ");
-			for (int i = 0; i < 6; i++) { // Destination mac address 6byte
-				if (i == 5) printf("%02x | ", eh->ether_dhost[i]);
-				else printf("%02x:", eh->ether_dhost[i]);
-			}
-			printf("Src MAC: ");
-			for (int i = 0; i < 6; i++) { // source mac address 6byte
-				if (i == 5) printf("%02x | ", eh->ether_shost[i]);
-				else printf("%02x:", eh->ether_shost[i]);
-			}
-			printf("\tDst IP Addr : %s | ", inet_ntop(AF_INET, &ih->ip_dst, buf, sizeof(buf)));
-			printf("Src IP Addr : %s\n", inet_ntop(AF_INET, &ih->ip_src, buf2, sizeof(buf2)));
-			pkt_data += sizeof(*eh) + sizeof(*ih) + th_off;
-			printf("%s\n", pkt_data);
 		}
 	}
 
